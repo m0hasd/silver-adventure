@@ -1,1 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domestic Workers — Unified Experience Prototype</title>
+<style>
+  :root{
+    --tamm-blue:#1663A8;
+    --tamm-blue-deep:#0E4E8A;
+    --tamm-teal:#00726B;
+    --tamm-orange:#F4581C;
+    --ink:#1A1F24;
+    --ink-soft:#5C6670;
+    --card:#F1F2F6;
+    --card-line:#E3E5EB;
+    --ok:#1B7F4D;
+    --warn:#B3720A;
+    --danger:#B42318;
+    --bg:#FFFFFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,Arial,sans-serif;}
+  body{background:#E8EAF0;display:flex;justify-content:center;padding:16px 0;min-height:100vh;}
+  .phone{width:390px;max-width:100%;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 8px 40px rgba(14,40,70,.18);display:flex;flex-direction:column;height:812px;position:relative;}
+  @media (max-width:420px){body{padding:0}.phone{border-radius:0;height:100vh;}}
 
+  /* ---------- header ---------- */
+  .hdr{background:linear-gradient(160deg,var(--tamm-blue) 0%,var(--tamm-blue-deep) 100%);color:#fff;padding:18px 20px 20px;flex-shrink:0;position:relative;overflow:hidden;}
+  .hdr::after{content:"";position:absolute;right:-40px;top:-30px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);}
+  .hdr-row{display:flex;align-items:center;gap:12px;position:relative;z-index:1;}
+  .back{width:32px;height:32px;border:none;background:transparent;color:#fff;font-size:22px;cursor:pointer;text-align:left;padding:0;}
+  .hdr h1{font-size:20px;font-weight:700;letter-spacing:.2px;flex:1;}
+  .hdr .sub{font-size:13px;opacity:.85;margin-top:4px;position:relative;z-index:1;}
+
+  .scroll{flex:1;overflow-y:auto;padding:18px 18px 90px;}
+  .sec-title{font-size:17px;font-weight:700;color:var(--ink);margin:20px 0 10px;}
+  .sec-title:first-child{margin-top:0;}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:10px;border:1px solid transparent;}
+  .rowcard{display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;}
+  .rowcard:active{background:#E7E9EF;}
+  .icn{width:40px;height:40px;border-radius:12px;background:#E4E1DA;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .rowcard .lbl{flex:1;font-size:15.5px;font-weight:600;color:var(--ink);}
+  .rowcard .val{font-size:17px;font-weight:700;color:var(--ink);}
+  .chev{color:#9AA1AB;font-size:16px;margin-left:2px;}
+
+  /* status chips */
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px;}
+  .chip.ok{background:#DDF0E4;color:var(--ok);}
+  .chip.warn{background:#FBEED3;color:var(--warn);}
+  .chip.danger{background:#FADCD9;color:var(--danger);}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+  /* worker card */
+  .worker{display:flex;gap:12px;align-items:flex-start;cursor:pointer;}
+  .avatar{width:46px;height:46px;border-radius:50%;background:#CFE3EE;color:var(--tamm-blue-deep);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+  .worker .info{flex:1;min-width:0;}
+  .worker .name{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.25;}
+  .worker .meta{font-size:12.5px;color:var(--ink-soft);margin-top:3px;}
+  .worker .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+
+  /* summary strip */
+  .strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:6px;}
+  .strip .cell{background:var(--card);border-radius:14px;padding:12px;text-align:left;}
+  .strip .num{font-size:22px;font-weight:800;color:var(--ink);}
+  .strip .cap{font-size:11.5px;color:var(--ink-soft);margin-top:2px;line-height:1.2;}
+  .strip .cell.alert .num{color:var(--warn);}
+
+  /* action banner */
+  .banner{background:var(--card);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .banner .txt{flex:1;}
+  .banner .t1{font-size:14.5px;font-weight:700;color:var(--ink);}
+  .banner .t2{font-size:12.5px;color:var(--warn);font-weight:600;margin-top:2px;}
+  .btn-pay{background:var(--tamm-orange);color:#fff;border:none;border-radius:22px;padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;}
+
+  /* service tiles */
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .svc{background:var(--card);border-radius:16px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-height:108px;transition:background .15s;}
+  .svc:active{background:#E7E9EF;}
+  .svc .s-icn{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:#DDEBE9;color:var(--tamm-teal);}
+  .svc .s-icn.rm{background:#FADCD9;color:var(--danger);}
+  .svc .s-lbl{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .svc .s-sub{font-size:11.5px;color:var(--ink-soft);line-height:1.3;}
+
+  /* tabs on detail */
+  .tabs{display:flex;gap:4px;background:var(--card);border-radius:14px;padding:4px;margin-bottom:16px;}
+  .tab{flex:1;border:none;background:transparent;padding:9px 0;font-size:13.5px;font-weight:600;color:var(--ink-soft);border-radius:11px;cursor:pointer;}
+  .tab.on{background:#fff;color:var(--tamm-teal);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--card-line);font-size:13.5px;}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--ink-soft);}
+  .kv .v{color:var(--ink);font-weight:600;text-align:right;}
+
+  /* document row */
+  .doc{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border-radius:14px;margin-bottom:8px;cursor:pointer;}
+  .doc .d-icn{width:38px;height:38px;border-radius:10px;background:#DCE7F2;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .doc .d-body{flex:1;min-width:0;}
+  .doc .d-t{font-size:13.5px;font-weight:700;color:var(--ink);}
+  .doc .d-s{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+
+  /* list action rows */
+  .act{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border-radius:14px;margin-bottom:8px;cursor:pointer;}
+  .act .a-body{flex:1;}
+  .act .a-t{font-size:14px;font-weight:700;color:var(--ink);}
+  .act .a-s{font-size:12px;color:var(--ink-soft);margin-top:2px;line-height:1.35;}
+  .act.rm .a-t{color:var(--danger);}
+  .act .s-icn{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;background:#DDEBE9;color:var(--tamm-teal);flex-shrink:0;}
+  .act.rm .s-icn{background:#FADCD9;color:var(--danger);}
+
+  /* bottom nav */
+  .nav{position:absolute;bottom:0;left:0;right:0;background:#F4F5F8;border-top:1px solid var(--card-line);display:flex;justify-content:space-around;padding:10px 0 18px;}
+  .nav .ni{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#8A929C;font-weight:600;}
+  .nav .ni.on{color:var(--tamm-teal);}
+  .nav .ni span:first-child{font-size:18px;}
+
+  .screen{display:none;}
+  .screen.on{display:flex;flex-direction:column;height:100%;}
+
+  .note{background:#EAF3FB;border-radius:12px;padding:11px 13px;font-size:12px;color:#2A5C8A;line-height:1.45;margin-bottom:14px;}
+  .toast{position:absolute;bottom:88px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;padding:10px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;z-index:20;}
+  .toast.show{opacity:.95;}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ══════════ SCREEN 1 · Health Insurance dashboard (adjusted) ══════════ -->
+  <div class="screen on" id="s-dash">
+    <div class="hdr">
+      <div class="hdr-row"><button class="back">‹</button><h1>Health Insurance</h1></div>
+    </div>
+    <div class="scroll">
+      <div class="sec-title">Actions</div>
+      <div class="banner">
+        <div class="txt"><div class="t1">Pay Fines</div><div class="t2">Total amount: Đ 300.00</div></div>
+        <button class="btn-pay">Pay</button>
+      </div>
+
+      <div class="sec-title">Summary</div>
+      <div class="card rowcard"><div class="icn">👨‍👩‍👧</div><div class="lbl">My Family</div><div class="val">6</div><span class="chev">›</span></div>
+      <div class="card rowcard" onclick="go('s-hub')" style="border:1.5px solid var(--tamm-teal);">
+        <div class="icn" style="background:#DDEBE9;">🧑‍🔧</div>
+        <div class="lbl">Domestic Workers<div style="font-size:11.5px;font-weight:500;color:var(--warn);margin-top:2px;">1 policy expiring soon</div></div>
+        <div class="val">4</div><span class="chev">›</span>
+      </div>
+      <div class="card rowcard"><div class="icn">💳</div><div class="lbl">Fines</div><div class="val" style="font-size:15px;">Đ 300.00</div><span class="chev">›</span></div>
+      <div class="card rowcard"><div class="icn">📁</div><div class="lbl">Documents</div><div class="val">6</div><span class="chev">›</span></div>
+      <div class="note">Prototype change: Domestic Workers is now a complete hub — the worker's documents, renewal and removal services all live inside it. Tap the row to enter.</div>
+    </div>
+    <div class="nav"><div class="ni"><span>▦</span><span>Services</span></div><div class="ni on"><span>◼</span><span>My TAMM</span></div><div class="ni"><span>💬</span><span>Support</span></div></div>
+  </div>
+
+  <!-- ══════════ SCREEN 2 · Domestic Workers hub ══════════ -->
+  <div class="screen" id="s-hub">
+    <div class="hdr">
+      <div class="hdr-row"><button class="back" onclick="go('s-dash')">‹</button><h1>Domestic Workers</h1></div>
+      <div class="sub">Everything for your sponsored workers in one place</div>
+    </div>
+    <div class="scroll">
+      <div class="strip">
+        <div class="cell"><div class="num">4</div><div class="cap">Workers</div></div>
+        <div class="cell alert"><div class="num">1</div><div class="cap">Expiring soon</div></div>
+        <div class="cell"><div class="num">5</div><div class="cap">Documents</div></div>
+      </div>
+
+      <div class="sec-title">My Workers</div>
+
+      <div class="card worker" onclick="go('s-detail')">
+        <div class="avatar">SH</div>
+        <div class="info">
+          <div class="name">Sayyid Hassan Kunhikoya Thangal Koyakutty</div>
+          <div class="meta">Sponsored · Manhampara, Kerala</div>
+          <div class="chips"><span class="chip ok"><span class="dot"></span>Residence active</span><span class="chip warn"><span class="dot"></span>Insurance expires in 24 days</span></div>
+        </div><span class="chev">›</span>
+      </div>
+
+      <div class="card worker">
+        <div class="avatar">NA</div>
+        <div class="info">
+          <div class="name">Netsanet Demeke Ajamo</div>
+          <div class="meta">Sponsored · Ashekubeaga</div>
+          <div class="chips"><span class="chip ok"><span class="dot"></span>Residence active</span><span class="chip ok"><span class="dot"></span>Insured to Mar 2027</span></div>
+        </div><span class="chev">›</span>
+      </div>
+
+      <div class="card worker">
+        <div class="avatar">MS</div>
+        <div class="info">
+          <div class="name">Mohammed Shaddam Mohammed Mokter Hossain</div>
+          <div class="meta">Sponsored · Chittagong</div>
+          <div class="chips"><span class="chip ok"><span class="dot"></span>Residence active</span><span class="chip ok"><span class="dot"></span>Insured to Jan 2027</span></div>
+        </div><span class="chev">›</span>
+      </div>
+
+      <div class="card worker">
+        <div class="avatar">WG</div>
+        <div class="info">
+          <div class="name">Wubedil Wasihun Gelaye</div>
+          <div class="meta">Sponsored · Machakel</div>
+          <div class="chips"><span class="chip ok"><span class="dot"></span>Residence active</span><span class="chip ok"><span class="dot"></span>Insured to Nov 2026</span></div>
+        </div><span class="chev">›</span>
+      </div>
+
+      <div class="sec-title">Worker Documents</div>
+      <div class="card rowcard" onclick="go('s-docs')"><div class="icn" style="background:#DCE7F2;">📄</div><div class="lbl">All worker documents<div style="font-size:11.5px;font-weight:500;color:var(--ink-soft);margin-top:2px;">Insurance cards, policies &amp; certificates</div></div><div class="val">5</div><span class="chev">›</span></div>
+
+      <div class="sec-title">Domestic Worker Services</div>
+      <div class="svc-grid">
+        <div class="svc" onclick="toast('Renewal service — select a worker')"><div class="s-icn">↻</div><div class="s-lbl">Renew Health Insurance</div><div class="s-sub">For a domestic worker</div></div>
+        <div class="svc" onclick="toast('Removal service — select a worker')"><div class="s-icn rm">✕</div><div class="s-lbl">Remove Worker from Policy</div><div class="s-sub">Cancel cover on departure</div></div>
+        <div class="svc" onclick="toast('Enrolment service opened')"><div class="s-icn">＋</div><div class="s-lbl">Add a Domestic Worker</div><div class="s-sub">Enrol in basic health insurance</div></div>
+        <div class="svc" onclick="toast('Update details service opened')"><div class="s-icn">✎</div><div class="s-lbl">Update Worker Details</div><div class="s-sub">Correct member information</div></div>
+      </div>
+    </div>
+    <div class="nav"><div class="ni"><span>▦</span><span>Services</span></div><div class="ni on"><span>◼</span><span>My TAMM</span></div><div class="ni"><span>💬</span><span>Support</span></div></div>
+  </div>
+
+  <!-- ══════════ SCREEN 3 · Worker detail with tabs ══════════ -->
+  <div class="screen" id="s-detail">
+    <div class="hdr">
+      <div class="hdr-row"><button class="back" onclick="go('s-hub')">‹</button><h1 style="font-size:17px;">Sayyid Hassan K. T. Koyakutty</h1></div>
+      <div class="sub">Sponsored · Manhampara, Kerala</div>
+    </div>
+    <div class="scroll">
+      <div class="tabs">
+        <button class="tab on" onclick="tab(this,'t-over')">Overview</button>
+        <button class="tab" onclick="tab(this,'t-doc')">Documents</button>
+        <button class="tab" onclick="tab(this,'t-svc')">Services</button>
+      </div>
+
+      <div id="t-over" class="tabpane">
+        <div class="card">
+          <div class="kv"><span class="k">Residence status</span><span class="v" style="color:var(--ok);">Active</span></div>
+          <div class="kv"><span class="k">Insurance policy</span><span class="v">Abu Dhabi Basic — Daman</span></div>
+          <div class="kv"><span class="k">Policy expiry</span><span class="v" style="color:var(--warn);">06 Oct 2026 · 24 days</span></div>
+          <div class="kv"><span class="k">Emirates ID</span><span class="v">784-••••-•••••-1</span></div>
+          <div class="kv"><span class="k">Sponsor</span><span class="v">Khalaf Helal Almazrouei</span></div>
+        </div>
+        <div class="act" onclick="toast('Renewal started for this worker')" style="border:1.5px solid var(--tamm-teal);background:#EAF4F3;">
+          <div class="s-icn">↻</div>
+          <div class="a-body"><div class="a-t">Renew insurance before 06 Oct</div><div class="a-s">Avoid a coverage gap and COC fines — renew in 3 steps</div></div>
+          <span class="chev">›</span>
+        </div>
+      </div>
+
+      <div id="t-doc" class="tabpane" style="display:none;">
+        <div class="doc" onclick="toast('Opening insurance card')"><div class="d-icn">🪪</div><div class="d-body"><div class="d-t">Health Insurance Card</div><div class="d-s">Valid to 06 Oct 2026 · Expiring soon</div></div><span class="chev">›</span></div>
+        <div class="doc" onclick="toast('Opening policy certificate')"><div class="d-icn">📜</div><div class="d-body"><div class="d-t">Policy Certificate</div><div class="d-s">Abu Dhabi Basic Plan · PDF</div></div><span class="chev">›</span></div>
+        <div class="doc" onclick="toast('Opening residency summary')"><div class="d-icn">📄</div><div class="d-body"><div class="d-t">Residency Summary</div><div class="d-s">Linked from ICP · Active</div></div><span class="chev">›</span></div>
+      </div>
+
+      <div id="t-svc" class="tabpane" style="display:none;">
+        <div class="act" onclick="toast('Renewal started for this worker')"><div class="s-icn">↻</div><div class="a-body"><div class="a-t">Renew Health Insurance</div><div class="a-s">Renew this worker's Abu Dhabi Basic policy</div></div><span class="chev">›</span></div>
+        <div class="act" onclick="toast('Update flow opened')"><div class="s-icn">✎</div><div class="a-body"><div class="a-t">Update Member Details</div><div class="a-s">Fix name, passport or contact details</div></div><span class="chev">›</span></div>
+        <div class="act rm" onclick="toast('Removal flow opened')"><div class="s-icn">✕</div><div class="a-body"><div class="a-t">Remove from Policy</div><div class="a-s">Cancel cover when the worker leaves your sponsorship</div></div><span class="chev">›</span></div>
+      </div>
+    </div>
+    <div class="nav"><div class="ni"><span>▦</span><span>Services</span></div><div class="ni on"><span>◼</span><span>My TAMM</span></div><div class="ni"><span>💬</span><span>Support</span></div></div>
+  </div>
+
+  <!-- ══════════ SCREEN 4 · Worker documents (scoped) ══════════ -->
+  <div class="screen" id="s-docs">
+    <div class="hdr">
+      <div class="hdr-row"><button class="back" onclick="go('s-hub')">‹</button><h1>Worker Documents</h1></div>
+      <div class="sub">Grouped by worker — separate from family documents</div>
+    </div>
+    <div class="scroll">
+      <div class="strip">
+        <div class="cell"><div class="num">5</div><div class="cap">Total</div></div>
+        <div class="cell alert"><div class="num">1</div><div class="cap">Expiring soon</div></div>
+        <div class="cell"><div class="num">0</div><div class="cap">Expired</div></div>
+      </div>
+
+      <div class="sec-title" style="font-size:14px;">Sayyid Hassan K. T. Koyakutty</div>
+      <div class="doc"><div class="d-icn">🪪</div><div class="d-body"><div class="d-t">Health Insurance Card</div><div class="d-s">Expiring 06 Oct 2026</div></div><span class="chip warn" style="flex-shrink:0;"><span class="dot"></span>24 days</span></div>
+      <div class="doc"><div class="d-icn">📜</div><div class="d-body"><div class="d-t">Policy Certificate</div><div class="d-s">Abu Dhabi Basic</div></div><span class="chev">›</span></div>
+
+      <div class="sec-title" style="font-size:14px;">Netsanet Demeke Ajamo</div>
+      <div class="doc"><div class="d-icn">🪪</div><div class="d-body"><div class="d-t">Health Insurance Card</div><div class="d-s">Valid to Mar 2027</div></div><span class="chev">›</span></div>
+
+      <div class="sec-title" style="font-size:14px;">Mohammed Shaddam M. M. Hossain</div>
+      <div class="doc"><div class="d-icn">🪪</div><div class="d-body"><div class="d-t">Health Insurance Card</div><div class="d-s">Valid to Jan 2027</div></div><span class="chev">›</span></div>
+
+      <div class="sec-title" style="font-size:14px;">Wubedil Wasihun Gelaye</div>
+      <div class="doc"><div class="d-icn">🪪</div><div class="d-body"><div class="d-t">Health Insurance Card</div><div class="d-s">Valid to Nov 2026</div></div><span class="chev">›</span></div>
+    </div>
+    <div class="nav"><div class="ni"><span>▦</span><span>Services</span></div><div class="ni on"><span>◼</span><span>My TAMM</span></div><div class="ni"><span>💬</span><span>Support</span></div></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  document.querySelector('#'+id+' .scroll').scrollTop=0;
+}
+function tab(btn,pane){
+  btn.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('#s-detail .tabpane').forEach(p=>p.style.display='none');
+  document.getElementById(pane).style.display='block';
+}
+let tt;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800);
+}
+</script>
+</body>
+</html>
